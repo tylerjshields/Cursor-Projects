@@ -1,0 +1,8 @@
+snowflake-connector-python==3.4.0
+numpy==1.24.3
+pandas==2.0.3
+matplotlib==3.7.2
+python-dotenv==1.0.0
+rich==13.7.0
+argparse>=1.4.0
+cryptography>=41.0.0 

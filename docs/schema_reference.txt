@@ -1,0 +1,24 @@
+DOORDASH DATABASE SCHEMA REFERENCE
+=================================
+
+TABLE: edw.finance.dimension_deliveries
+--------------------------------------------------
+Description: Basic go-to table for delivery-level detail
+Notes: Primary key is delivery_id. Filter on is_filtered_core=TRUE to screen out test data (note: this also excludes cancelled deliveries). Financial columns variable_profit, gov, and subtotal are stored in cents - multiply by 0.01 to get dollar values.
+Key columns: `delivery_id`, `is_filtered_core`, `variable_profit`, `gov`, `subtotal`
+Common joins: edw.cng.dimension_new_verticals_store_tags, edw.finance.fact_delivery_allocation
+
+TABLE: edw.cng.dimension_new_verticals_store_tags
+--------------------------------------------------
+Description: Store-level table for New Verticals (non-restaurant) stores
+Notes: New Verticals includes all stores that are not restaurants (grocery, convenience, Dashmart aka 1P convenience, alcohol, retail, etc.). Verticals are defined in vertical_name or cng_business_line. Stores refer to individual locations.
+Key columns: `store_id`, `vertical_name`, `cng_business_line`, `business_id`, `business_name`
+Common joins: edw.finance.dimension_deliveries
+
+TABLE: edw.finance.fact_delivery_allocation
+--------------------------------------------------
+Description: Financial source of truth for gov, variable profit, etc.
+Notes: May be duplicative to dimension_deliveries, but preferred for 100% correct financial data. For adhocs/directional reads or when performance is a blocker, can skip this join and use dimension_deliveries directly.
+Key columns: `delivery_id`, `gov`, `variable_profit`
+Common joins: edw.finance.dimension_deliveries
+

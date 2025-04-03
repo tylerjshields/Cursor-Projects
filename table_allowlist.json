@@ -1,0 +1,15 @@
+[
+  {
+    "table": "fact_delivery_allocation_custom",
+    "schema": "finance",
+    "database": "edw",
+    "tier": 2,
+    "description": "Financial table for delivery allocation with marginal variable profit metrics",
+    "notes": "Contains marginal_variable_profit which is a near true-to-transaction version of variable_profit, excluding P2C costs and peanutbuttered costs",
+    "key_columns": [
+      "delivery_id",
+      "active_date_utc",
+      "marginal_variable_profit"
+    ]
+  }
+]

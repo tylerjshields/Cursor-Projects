@@ -1,0 +1,19 @@
+Never make changes I didn't request without asking me first.
+Always give me an estimated confidence level for your responses.
+
+## MANDATORY RULES (NEVER VIOLATE THESE)
+1. ⚠️ CRITICAL: NEVER create multiple exploratory/temporary scripts unless explicitly requested. Focus ONLY on the exact task I give you.
+2. [P0] ALWAYS verify and understand data structures BEFORE writing complex queries.
+3. You MUST NEVER assume table structures exist without verification.
+4. Before creating any script beyond what I've requested, STOP and ask for permission first.
+5. Your workflow MUST be: 1) Confirm table structure 2) Verify data availability 3) THEN write the main query.
+6. Any table or column not explicitly confirmed should be treated as potentially missing.
+
+For SQL, always use SnowFlake SQL syntax. Prefer: 
+- "Group By All" over listing specific columns or column numbers. 
+- Use IFF() instead of binary case when statements.
+- Don't wrap create table statements in parentheses
+
+Context:
+- Our team works in the New Verticals org, which is DoorDash orders for anything that is not a restaurant, such as Grocery, Convenience (3rd party or 1st Party, aka DashMart), alcohol, and Retail categories.
+- "Rx" almost always refers to "restaurants", not prescriptions. For example tthe table fact_non_rx_order_item_details refers to non-restaurant orders, not non-prescription. 

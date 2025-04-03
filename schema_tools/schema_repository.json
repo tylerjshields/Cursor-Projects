@@ -1,0 +1,496 @@
+{
+  "last_updated": "2025-04-01",
+  "verified_tables": [
+    {
+      "database": "EDW",
+      "schema": "FINANCE",
+      "table": "DIMENSION_DELIVERIES"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DIMENSION_NEW_VERTICAL_STORE_TAGS"
+    },
+    {
+      "database": "EDW",
+      "schema": "FINANCE",
+      "table": "FACT_DELIVERY_ALLOCATION"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_ORDER_ITEM_DETAILS"
+    },
+    {
+      "database": "EDW",
+      "schema": "GROWTH",
+      "table": "DIMENSION_CONSUMER_GROWTH_ACCOUNTING_STATE_DETAILED_ALL"
+    },
+    {
+      "database": "METRICS_REPO",
+      "schema": "PUBLIC",
+      "table": "NV_CX_GROWTH_STATE"
+    },
+    {
+      "database": "EDW",
+      "schema": "CONSUMER",
+      "table": "DIMENSION_CONSUMER_NOTIFICATION_REACH"
+    },
+    {
+      "database": "EDW",
+      "schema": "CONSUMER",
+      "table": "FACT_CONSUMER_NOTIFICATION_ENGAGEMENT"
+    },
+    {
+      "database": "EDW",
+      "schema": "CONSUMER",
+      "table": "FACT_STORE_IMPRESSIONS"
+    },
+    {
+      "database": "CURIE_EXPERIMENTS_PROD",
+      "schema": "PUBLIC",
+      "table": "MAINDB_EXPERIMENT_ANALYSIS"
+    },
+    {
+      "database": "CURIE_EXPERIMENTS_PROD",
+      "schema": "PUBLIC",
+      "table": "MAINDB_ANALYSIS_METRIC_RESULTS"
+    },
+    {
+      "database": "CURIE_EXPERIMENTS_PROD",
+      "schema": "PUBLIC",
+      "table": "METRIC_DIMENSION_RESULTS_DETAILS"
+    },
+    {
+      "database": "CURIE_EXPERIMENTS_PROD",
+      "schema": "PUBLIC",
+      "table": "METRIC_DIMENSION_RESULTS"
+    },
+    {
+      "database": "PRODDB",
+      "schema": "PUBLIC",
+      "table": "FACT_DEDUP_EXPERIMENT_EXPOSURE"
+    },
+    {
+      "database": "PRODDB",
+      "schema": "TYLERANDERSON",
+      "table": "STORE_IMPRESSIONS_DEDUPE"
+    },
+    {
+      "database": "PRODDB",
+      "schema": "PUBLIC",
+      "table": "NV_CHANNELS_NOTIF_INDEX"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "CATALOG_UMP"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DIMENSION_BUSINESS_VERTICAL_ID_MAPPING"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DL_COPY_GLOBAL_PRODUCT_ITEM_AUDIT"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DL_COPY_PRODUCT_ITEM_AUDIT"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DL_FACT_STORE_PRICE_DICTIONARY"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_ALCOHOL_DELIVERIES"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_CONSUMER_FUNNEL_PERFORMANCE_CORE_CX_FUNNEL_ATS_SESSION_ID"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_CPG_COCA_COLA_BUSINESS_BRAND_ATTACHMENT_RATE"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NV_ORDER_ITEMS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_QIF_OKR_BUSINESS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "MERCHANT_CATALOG_DLCOPY_PREVIOUS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "NEW_VERTICAL_METRIC_CUBE__PRE_DAILY"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "TEMP_CVS25"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DIMENSION_GSHEET_STORE_CATEGORIZATION"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_CATALOG_ITEM_DAILY"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_CATALOG_POST_AUDIT_STAGE"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_ORDER_ITEM_DETAILS_LM"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_TRANSACTIONS_LM"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "TEMP_DOLLAR_GENERAL23"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_CONSUMER_FUNNEL_PERFORMANCE_CORE_CX_FUNNEL_ATS_DEVICE_ID"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "JETS_SCAN_STRATEGY_OUTPUT_HISTORICAL"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_TRANSACTIONS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_ORDER_ITEM_SUBSTITUTION_PREFERENCE"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "RFDS_ORDER_ITEMS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "RETAIL_PRODUCT_ITEMS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "MERCHANT_CATALOG_DLCOPY_CHECKSUMS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "CATALOG_UGP"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DIMENSION_CATALOG_PRODUCT_ITEM"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_CONSUMER_FUNNEL_PERFORMANCE_CORE_CONSUMER_FUNNEL_1_DAY_BACK"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_CONSUMER_FUNNEL_PERFORMANCE_ENTERPRISE_1_DAYS_LOOKBACK"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_CATALOG_AUDIT_SAMPLE_SKU_STAGE"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_MISSING_INCORRECT_ITEMS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_ORDER_ITEM_LIFECYCLE"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "TEMP_STAPLES_PRODUCTION25"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "TEMP_WALGREENS25"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DIMENSION_STORE_VERTICAL_TAGS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_CPG_COCA_COLA_MONTHLY"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_QPF_DAILY_SNAPSHOT"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "TLOGS_METADATA"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_QIF_SKU_SNAPSHOT_DAILY"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "NEW_VERTICAL_METRIC_CUBE__DENORM"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "TEMP_DOLLAR_GENERAL18"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_CATALOG_AUDIT"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "NEW_VERTICAL_METRIC_CUBE"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_STORE_ITEM_PRICES"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "TEMP_SEG20230818"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DD_S3_TO_SNOWFLAKE_FILE_LOAD_LOGS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DIMENSION_STATIC_NEW_VERTICAL"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_CONSUMER_FUNNEL_PERFORMANCE"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_CONSUMER_SESSION_FLOW"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_ITEM_IMPRESSION_CLICK_AGGREGATION"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_DX_PICK_SCORE_DAILY_SNAPSHOT"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_MISSING_INCORRECT_ITEMS_AGG"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_RECEIPT_ORDER_DETAILS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_STORE_PRICE_DICTIONARY"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "TEMP_DOLLAR_GENERAL00"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "TEMP_WALGREENSTEST"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_CONSUMER_STORE_SESSION_FLOW"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "TEMP_ALDI_PRODUCTION25"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "CATALOG_COVERAGE_ATTRIBUTES_FLATTENED"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DIMENSION_GSHEET_STORE_CATEGORIZATION_BACKUP"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DL__FACT_STORE_ITEM_PRICES"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_CANCELLATIONS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_CATALOG_BUILD_RED_PIPELINE"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_DELIVERY_PICK_SCORE"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_ITEM_IMPRESSIONS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_ORDERS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_RECEIPT_ORDER_ITEM_DETAILS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "MERCHANT_CATALOG_DLCOPY"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "RFDS_ORDERS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DIMENSION_STATIC_BUSINESS_ORG"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_CATALOG_METRICS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_CPG_COCA_COLA_ATTACHMENT_RATE"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_MERCHANT_LAST_SOLD_BOH_DAILY"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_ITEM_INFLATION_EXCEPTIONS"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "TEMP_DOLLAR_GENERAL17"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "TEMP_SEG25"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "DIMENSION_STATIC_BUSINESS_TYPE"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "MERCHANT_CATALOG_SNAPSHOT_DLCOPY"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_NON_RX_ORDER_ITEM_DETAILS_SLA"
+    },
+    {
+      "database": "EDW",
+      "schema": "CNG",
+      "table": "FACT_QIF_OKR_STORE"
+    },
+    {
+      "database": "edw",
+      "schema": "finance",
+      "table": "fact_delivery_allocation_custom"
+    }
+  ],
+  "note": "This is a lightweight repository of table names that exist in the database. It contains no description or metadata, only verified table names."
+}

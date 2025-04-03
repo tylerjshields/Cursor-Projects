@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "tables": {
+    "edw.finance.dimension_deliveries": {
+      "columns": [],
+      "description": "Main table for delivery-level data with comprehensive metrics",
+      "notes": "Primary key is delivery_id. Always filter on is_filtered_core=TRUE to remove test data.",
+      "common_joins": [
+        "edw.cng.dimension_store",
+        "edw.cng.dimension_orders"
+      ],
+      "key_columns": [
+        "delivery_id",
+        "is_filtered_core",
+        "order_id",
+        "store_id",
+        "dasher_id",
+        "delivery_date"
+      ]
+    },
+    "edw.cng.dimension_new_verticals_store_tags": {
+      "columns": [],
+      "description": "Store-level table for New Verticals (non-restaurant) stores",
+      "notes": "New Verticals includes all stores that are not restaurants (grocery, convenience, Dashmart aka 1P convenience, alcohol, retail, etc.). Verticals are defined in vertical_name or cng_business_line. Stores refer to individual locations.",
+      "common_joins": [
+        "edw.finance.dimension_deliveries"
+      ],
+      "key_columns": [
+        "store_id",
+        "vertical_name",
+        "cng_business_line",
+        "business_id",
+        "business_name"
+      ]
+    },
+    "edw.finance.fact_delivery_allocation": {
+      "columns": [],
+      "description": "Financial source of truth for gov, variable profit, etc.",
+      "notes": "May be duplicative to dimension_deliveries, but preferred for 100% correct financial data. For adhocs/directional reads or when performance is a blocker, can skip this join and use dimension_deliveries directly.",
+      "common_joins": [
+        "edw.finance.dimension_deliveries"
+      ],
+      "key_columns": [
+        "delivery_id",
+        "gov",
+        "variable_profit"
+      ]
+    }
+  },
+  "common_practices": [
+    "Always use double quotes for identifiers as Snowflake is case-sensitive",
+    "Prefer to qualify table names with database and schema",
+    "Use IFF() instead of binary CASE WHEN statements",
+    "Use 'GROUP BY ALL' when appropriate to avoid listing all non-aggregated columns",
+    "Filter test data with appropriate flags (e.g., is_filtered_core=TRUE)",
+    "Include comments in complex queries to explain business logic"
+  ],
+  "query_templates": {
+    "basic_select": "SELECT {columns} FROM {database}.{schema}.{table} WHERE {condition} LIMIT 100;",
+    "join_example": "SELECT a.{col1}, b.{col2} FROM {table1} a JOIN {table2} b ON a.{join_key} = b.{join_key} WHERE {condition};"
+  }
+}

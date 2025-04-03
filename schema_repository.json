@@ -1,0 +1,10 @@
+{
+  "verified_tables": [
+    {
+      "database": "edw",
+      "schema": "finance",
+      "table": "fact_delivery_allocation_custom"
+    }
+  ],
+  "last_updated": "2025-04-01"
+}

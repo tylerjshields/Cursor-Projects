@@ -1,0 +1,250 @@
+{
+  "metadata": {
+    "analysis_date": "2025-03-30",
+    "total_tables": 83
+  },
+  "largest_tables": [
+    {
+      "table_name": "MERCHANT_CATALOG_SNAPSHOT_DLCOPY",
+      "table_type": "BASE TABLE",
+      "row_count": 39811964790,
+      "size_mb": 29193846.23,
+      "last_altered": "2025-03-29T19:20:15.413000+00:00"
+    },
+    {
+      "table_name": "FACT_CATALOG_ITEM_DAILY",
+      "table_type": "BASE TABLE",
+      "row_count": 46977050030,
+      "size_mb": 12910908.45,
+      "last_altered": "2025-03-29T21:50:59.526000+00:00"
+    },
+    {
+      "table_name": "FACT_CONSUMER_STORE_SESSION_FLOW",
+      "table_type": "BASE TABLE",
+      "row_count": 163001348397,
+      "size_mb": 9339796.0,
+      "last_altered": "2025-03-29T15:32:45.337000+00:00"
+    },
+    {
+      "table_name": "FACT_MERCHANT_LAST_SOLD_BOH_DAILY",
+      "table_type": "BASE TABLE",
+      "row_count": 1782358613542,
+      "size_mb": 6893152.97,
+      "last_altered": "2025-03-29T16:20:38.113000+00:00"
+    },
+    {
+      "table_name": "FACT_NON_RX_ITEM_IMPRESSIONS",
+      "table_type": "BASE TABLE",
+      "row_count": 79160957273,
+      "size_mb": 6131738.8,
+      "last_altered": "2025-03-29T16:32:27.329000+00:00"
+    },
+    {
+      "table_name": "FACT_ORDER_ITEM_SUBSTITUTION_PREFERENCE",
+      "table_type": "BASE TABLE",
+      "row_count": 62699132072,
+      "size_mb": 5369717.43,
+      "last_altered": "2025-03-30T15:00:04.764000+00:00"
+    },
+    {
+      "table_name": "FACT_ITEM_IMPRESSION_CLICK_AGGREGATION",
+      "table_type": "BASE TABLE",
+      "row_count": 97054210863,
+      "size_mb": 5185415.16,
+      "last_altered": "2025-02-01T04:11:01.142000+00:00"
+    },
+    {
+      "table_name": "RETAIL_PRODUCT_ITEMS",
+      "table_type": "BASE TABLE",
+      "row_count": 5943472382,
+      "size_mb": 2291675.43,
+      "last_altered": "2025-03-30T14:18:16.402000+00:00"
+    },
+    {
+      "table_name": "FACT_STORE_ITEM_PRICES",
+      "table_type": "BASE TABLE",
+      "row_count": 5031287371,
+      "size_mb": 1018861.79,
+      "last_altered": "2025-03-29T17:35:56.108000+00:00"
+    },
+    {
+      "table_name": "TEMP_DOLLAR_GENERAL18",
+      "table_type": "BASE TABLE",
+      "row_count": 209165684534,
+      "size_mb": 672953.13,
+      "last_altered": "2025-01-29T13:12:30.284000+00:00"
+    },
+    {
+      "table_name": "FACT_NON_RX_ORDER_ITEM_DETAILS",
+      "table_type": "BASE TABLE",
+      "row_count": 3000871670,
+      "size_mb": 566811.4,
+      "last_altered": "2025-03-30T15:00:06.707000+00:00"
+    },
+    {
+      "table_name": "DL__FACT_STORE_ITEM_PRICES",
+      "table_type": "BASE TABLE",
+      "row_count": 3086010400,
+      "size_mb": 502494.22,
+      "last_altered": "2025-01-29T06:48:00.156000+00:00"
+    },
+    {
+      "table_name": "TEMP_DOLLAR_GENERAL17",
+      "table_type": "BASE TABLE",
+      "row_count": 156938883475,
+      "size_mb": 502050.73,
+      "last_altered": "2025-01-29T16:13:40.193000+00:00"
+    },
+    {
+      "table_name": "RFDS_ORDER_ITEMS",
+      "table_type": "BASE TABLE",
+      "row_count": 2650869835,
+      "size_mb": 423348.68,
+      "last_altered": "2025-03-30T14:06:19.211000+00:00"
+    },
+    {
+      "table_name": "FACT_NON_RX_QPF_DAILY_SNAPSHOT",
+      "table_type": "BASE TABLE",
+      "row_count": 3773150472,
+      "size_mb": 341715.49,
+      "last_altered": "2025-01-29T06:38:00.131000+00:00"
+    },
+    {
+      "table_name": "DL_COPY_PRODUCT_ITEM_AUDIT",
+      "table_type": "BASE TABLE",
+      "row_count": 1477581922,
+      "size_mb": 302292.18,
+      "last_altered": "2025-03-30T12:47:06.491000+00:00"
+    },
+    {
+      "table_name": "FACT_CATALOG_METRICS",
+      "table_type": "BASE TABLE",
+      "row_count": 8928627712,
+      "size_mb": 238060.29,
+      "last_altered": "2025-03-29T21:37:30.853000+00:00"
+    },
+    {
+      "table_name": "FACT_NON_RX_TRANSACTIONS",
+      "table_type": "BASE TABLE",
+      "row_count": 1405130053,
+      "size_mb": 231947.87,
+      "last_altered": "2025-03-30T14:55:16.743000+00:00"
+    },
+    {
+      "table_name": "MERCHANT_CATALOG_DLCOPY",
+      "table_type": "BASE TABLE",
+      "row_count": 225967260,
+      "size_mb": 227915.12,
+      "last_altered": "2025-03-30T13:34:03.108000+00:00"
+    },
+    {
+      "table_name": "MERCHANT_CATALOG_DLCOPY_PREVIOUS",
+      "table_type": "BASE TABLE",
+      "row_count": 225967218,
+      "size_mb": 219004.66,
+      "last_altered": "2025-03-30T13:34:03.042000+00:00"
+    }
+  ],
+  "prefixes": {
+    "fact_": 43,
+    "temp_": 11,
+    "dimension_": 9
+  },
+  "categories": {
+    "Other": [
+      "NEW_VERTICAL_METRIC_CUBE__DENORM",
+      "FACT_NON_RX_TRANSACTIONS_LM",
+      "MERCHANT_CATALOG_SNAPSHOT_DLCOPY",
+      "FACT_CATALOG_ITEM_DAILY",
+      "FACT_CONSUMER_STORE_SESSION_FLOW",
+      "FACT_MERCHANT_LAST_SOLD_BOH_DAILY",
+      "FACT_NON_RX_ITEM_IMPRESSIONS",
+      "FACT_ITEM_IMPRESSION_CLICK_AGGREGATION",
+      "FACT_STORE_ITEM_PRICES",
+      "TEMP_DOLLAR_GENERAL18",
+      "DL__FACT_STORE_ITEM_PRICES",
+      "TEMP_DOLLAR_GENERAL17",
+      "FACT_NON_RX_QPF_DAILY_SNAPSHOT",
+      "DL_COPY_PRODUCT_ITEM_AUDIT",
+      "FACT_CATALOG_METRICS",
+      "FACT_NON_RX_TRANSACTIONS",
+      "MERCHANT_CATALOG_DLCOPY",
+      "MERCHANT_CATALOG_DLCOPY_PREVIOUS",
+      "FACT_STORE_PRICE_DICTIONARY",
+      "DL_FACT_STORE_PRICE_DICTIONARY",
+      "TEMP_DOLLAR_GENERAL00",
+      "CATALOG_UMP",
+      "FACT_QIF_OKR_STORE",
+      "FACT_NON_RX_ORDERS",
+      "RFDS_ORDERS",
+      "TEMP_DOLLAR_GENERAL23",
+      "FACT_CPG_COCA_COLA_MONTHLY",
+      "FACT_CONSUMER_SESSION_FLOW",
+      "TLOGS_METADATA",
+      "FACT_CONSUMER_FUNNEL_PERFORMANCE_ENTERPRISE_1_DAYS_LOOKBACK",
+      "FACT_NON_RX_ITEM_INFLATION_EXCEPTIONS",
+      "DL_COPY_GLOBAL_PRODUCT_ITEM_AUDIT",
+      "DIMENSION_CATALOG_PRODUCT_ITEM",
+      "FACT_RECEIPT_ORDER_DETAILS",
+      "FACT_NON_RX_CATALOG_BUILD_RED_PIPELINE",
+      "FACT_NON_RX_MISSING_INCORRECT_ITEMS",
+      "DD_S3_TO_SNOWFLAKE_FILE_LOAD_LOGS",
+      "FACT_NON_RX_CANCELLATIONS",
+      "FACT_NON_RX_MISSING_INCORRECT_ITEMS_AGG",
+      "CATALOG_UGP",
+      "TEMP_SEG20230818",
+      "FACT_CPG_COCA_COLA_BUSINESS_BRAND_ATTACHMENT_RATE",
+      "NEW_VERTICAL_METRIC_CUBE",
+      "FACT_QIF_OKR_BUSINESS",
+      "JETS_SCAN_STRATEGY_OUTPUT_HISTORICAL",
+      "FACT_NON_RX_DX_PICK_SCORE_DAILY_SNAPSHOT",
+      "NEW_VERTICAL_METRIC_CUBE__PRE_DAILY",
+      "DIMENSION_STORE_VERTICAL_TAGS",
+      "TEMP_WALGREENS25",
+      "DIMENSION_GSHEET_STORE_CATEGORIZATION_BACKUP",
+      "TEMP_SEG25",
+      "FACT_CONSUMER_FUNNEL_PERFORMANCE",
+      "TEMP_CVS25",
+      "TEMP_WALGREENSTEST",
+      "FACT_CONSUMER_FUNNEL_PERFORMANCE_CORE_CX_FUNNEL_ATS_DEVICE_ID",
+      "FACT_CONSUMER_FUNNEL_PERFORMANCE_CORE_CX_FUNNEL_ATS_SESSION_ID",
+      "TEMP_ALDI_PRODUCTION25",
+      "FACT_CPG_COCA_COLA_ATTACHMENT_RATE",
+      "TEMP_STAPLES_PRODUCTION25",
+      "CATALOG_COVERAGE_ATTRIBUTES_FLATTENED",
+      "FACT_CONSUMER_FUNNEL_PERFORMANCE_CORE_CONSUMER_FUNNEL_1_DAY_BACK",
+      "DIMENSION_BUSINESS_VERTICAL_ID_MAPPING",
+      "MERCHANT_CATALOG_DLCOPY_CHECKSUMS",
+      "DIMENSION_STATIC_NEW_VERTICAL",
+      "DIMENSION_STATIC_BUSINESS_TYPE",
+      "DIMENSION_STATIC_BUSINESS_ORG",
+      "DIMENSION_GSHEET_STORE_CATEGORIZATION",
+      "FACT_NON_RX_CATALOG_POST_AUDIT_STAGE",
+      "FACT_NON_RX_CATALOG_AUDIT_SAMPLE_SKU_STAGE",
+      "FACT_QIF_SKU_SNAPSHOT_DAILY",
+      "FACT_NON_RX_CATALOG_AUDIT"
+    ],
+    "Order Items": [
+      "FACT_NON_RX_ORDER_ITEM_DETAILS_LM",
+      "FACT_ORDER_ITEM_SUBSTITUTION_PREFERENCE",
+      "FACT_NON_RX_ORDER_ITEM_DETAILS",
+      "RFDS_ORDER_ITEMS",
+      "FACT_NV_ORDER_ITEMS",
+      "FACT_NON_RX_ORDER_ITEM_LIFECYCLE",
+      "FACT_RECEIPT_ORDER_ITEM_DETAILS",
+      "FACT_NON_RX_ORDER_ITEM_DETAILS_SLA"
+    ],
+    "Retail": [
+      "RETAIL_PRODUCT_ITEMS"
+    ],
+    "Deliveries": [
+      "FACT_NON_RX_DELIVERY_PICK_SCORE"
+    ],
+    "Alcohol": [
+      "FACT_ALCOHOL_DELIVERIES"
+    ],
+    "Store Tagging": [
+      "DIMENSION_NEW_VERTICAL_STORE_TAGS"
+    ]
+  }
+}
