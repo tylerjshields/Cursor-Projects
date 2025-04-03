@@ -2,6 +2,15 @@
 Snowflake Credentials Manager
 
 This module provides secure access to Snowflake credentials from environment variables.
+
+DEPRECATION NOTICE:
+==================
+This module is deprecated and will be removed in a future update.
+Please transition to the VS Code Snowflake extension for a better experience.
+Connection configuration is now managed through ~/.snowflake/connections.toml.
+See README.md for migration instructions.
+
+Last planned maintenance date: August 31, 2024
 """
 
 import os

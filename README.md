@@ -45,3 +45,23 @@ python schema_tools/add_to_allowlist.py --schema FINANCE --table DIMENSION_DELIV
 2. **Tier 2: Specialized Tables** - Trustworthy but more niche tables
 3. **Tier 3: Limited Use Tables** - Tables created for specific use cases
 4. **Tier 4: Adhoc/Scratch Tables** - Should not be referenced unless directly requested 
+
+# Cursor Projects
+
+## Snowflake Connection Update
+
+**Important:** We are transitioning from our custom Snowflake connection implementation to the official VS Code Snowflake extension. 
+
+### What's Changing
+
+- The custom Python-based Snowflake connector (`utils/snowflake_connector.py`) is being deprecated
+- The official Snowflake VS Code extension is now the recommended way to connect
+
+### What You Need to Do
+
+1. Install the Snowflake VS Code extension in Cursor
+2. Verify your connection settings in `~/.snowflake/connections.toml`
+3. Begin using the extension for running SQL queries
+4. Update any scripts that import from the old connector
+
+For detailed migration instructions, see [Snowflake Migration Guide](docs/snowflake_migration.md). 
