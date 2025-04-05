@@ -1425,15 +1425,15 @@
     "schema": "CONSUMER",
     "database": "EDW",
     "tier": 1,
-    "description": "Store impression data for consumer interactions",
-    "notes": "Records when stores are shown to consumers in the app, important for conversion tracking.",
+    "description": "Table containing store impression data for monitoring",
+    "notes": "Used for LCM monitoring and carousel analysis",
     "common_joins": [
       "EDW.CNG.DIMENSION_NEW_VERTICAL_STORE_TAGS"
     ],
     "key_columns": [
-      "consumer_id",
       "store_id",
-      "impression_timestamp"
+      "session_id",
+      "timestamp"
     ],
     "columns": {
       "EVENT_DATE": "DATE",

@@ -8,6 +8,7 @@ WITH metrics AS (
     SELECT 
         campaign_name,
         clean_campaign_name,
+        team,
         ep_name,
         notification_channel,
         sent_week,
@@ -55,6 +56,7 @@ WITH metrics AS (
     select 
         campaign_name,
         clean_campaign_name,
+        team,
         ep_name,
         notification_channel,
         sent_week,
@@ -102,6 +104,7 @@ WITH metrics AS (
     select 
         campaign_name,
         clean_campaign_name,
+        team,
         ep_name,
         notification_channel,
         sent_week,
@@ -155,6 +158,7 @@ targeting as (
 select 
     m.campaign_name,    -- Keep original campaign_name, don't replace with ep_name
     m.clean_campaign_name,
+    m.team,
     m.ep_name,
     m.notification_channel,
     m.sent_week,
@@ -201,4 +205,4 @@ from metrics m
 left join targeting r
     on m.ep_name = r.program_name 
     and date_trunc('week', r.run_at::date) = m.sent_week
-order by m.sent_week DESC, m.campaign_name, m.notification_channel, m.time_window; 
+order by m.sent_week DESC, m.campaign_name, m.team, m.notification_channel, m.time_window; 

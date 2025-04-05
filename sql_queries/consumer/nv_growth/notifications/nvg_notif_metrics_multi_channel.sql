@@ -27,11 +27,13 @@ and d.active_date_utc between '2025-01-01' and current_date-1
 -- Create multi-channel version of core metrics
 create or replace table proddb.public.nvg_notif_core_metrics_multi_channel as 
 select 
+concat(e.deduped_message_id, '_', e.consumer_id) as deduped_message_id_consumer,
 e.deduped_message_id,
 e.consumer_id,
 COALESCE(e.campaign_name, e.canvas_name) as campaign_name,
 ep_name,
 clean_campaign_name,
+n.team,
 sent_at_date,
 e.notification_channel,
 -- CASE 
@@ -99,7 +101,10 @@ group by all;
 
 create or replace table proddb.public.nvg_notif_nv_metrics_multi_channel as 
 select 
+    concat(e.deduped_message_id, '_', e.consumer_id) as deduped_message_id_consumer,
     e.deduped_message_id,
+    e.consumer_id,
+    n.team,
     e.notification_channel,
     max(case when o.created_at between e.sent_at and dateadd('h', 1, e.sent_at) then 1 else 0 end) as nv_order_within_1h,
     max(case when o.created_at between e.sent_at and dateadd('h', 4, e.sent_at) then 1 else 0 end) as nv_order_within_4h,
@@ -146,10 +151,12 @@ group by all;
 
 create or replace table proddb.public.nvg_notif_metrics_base_multi_channel as 
 SELECT
+b.deduped_message_id_consumer,
 b.deduped_message_id,
 b.consumer_id,
 b.campaign_name,
 b.clean_campaign_name,
+b.team,
 b.ep_name,
 b.notification_channel,
 b.sent_at_date,
@@ -198,33 +205,35 @@ coalesce(n.total_nv_gov_within_4h, 0) as total_nv_gov_within_4h,
 coalesce(n.total_nv_gov_within_24h, 0) as total_nv_gov_within_24h
 FROM proddb.public.nvg_notif_core_metrics_multi_channel b
 JOIN proddb.public.nvg_notif_nv_metrics_multi_channel n 
-  ON b.deduped_message_id = n.deduped_message_id 
-  AND b.notification_channel = n.notification_channel;
+  ON b.deduped_message_id_consumer = n.deduped_message_id_consumer
+  AND b.notification_channel = n.notification_channel
+  AND b.team = n.team;
 
 create or replace table proddb.public.nvg_notif_metrics_multi_channel as 
 select 
 campaign_name,
 clean_campaign_name,
+team,
 ep_name,
 notification_channel,
 date_trunc('week', sent_at_date) sent_week,
-count(distinct deduped_message_id) notifs_sent,
+count(distinct deduped_message_id_consumer) notifs_sent,
 count(distinct consumer_id) cx_notifs_sent,
 notifs_sent / nullif(cx_notifs_sent, 0) notifs_sent_per_cx,
 
 -- 1h Metrics with engagement as the primary metric
-count(distinct iff(engagement_within_1h = 1, deduped_message_id, null)) as engagement_1h,
-count(distinct iff(receive_within_1h = 1, deduped_message_id, null)) as receive_1h,
-count(distinct iff(visit_within_1h = 1, deduped_message_id, null)) as visit_1h,
-count(distinct iff(order_within_1h = 1, deduped_message_id, null)) as order_1h,
-count(distinct iff(nv_order_within_1h = 1, deduped_message_id, null)) as nv_order_1h,
-count(distinct iff(nv_trial_within_1h = 1, deduped_message_id, null)) as nv_trial_1h,
-count(distinct iff(nv_retrial_within_1h = 1, deduped_message_id, null)) as nv_retrial_1h,
-count(distinct iff(nv_trial_or_retrial_within_1h = 1, deduped_message_id, null)) as nv_trial_or_retrial_1h,
-count(distinct iff(bounce_within_1h = 1, deduped_message_id, null)) as bounce_1h,
-count(distinct iff(unsubscribe_within_1h = 1, deduped_message_id, null)) as unsubscribe_1h,
-count(distinct iff(uninstall_within_1h = 1, deduped_message_id, null)) as uninstall_1h,
-count(distinct iff(engagement_to_nv_order_within_1h = 1, deduped_message_id, null)) as engagement_to_nv_order_1h,
+count(distinct iff(engagement_within_1h = 1, deduped_message_id_consumer, null)) as engagement_1h,
+count(distinct iff(receive_within_1h = 1, deduped_message_id_consumer, null)) as receive_1h,
+count(distinct iff(visit_within_1h = 1, deduped_message_id_consumer, null)) as visit_1h,
+count(distinct iff(order_within_1h = 1, deduped_message_id_consumer, null)) as order_1h,
+count(distinct iff(nv_order_within_1h = 1, deduped_message_id_consumer, null)) as nv_order_1h,
+count(distinct iff(nv_trial_within_1h = 1, deduped_message_id_consumer, null)) as nv_trial_1h,
+count(distinct iff(nv_retrial_within_1h = 1, deduped_message_id_consumer, null)) as nv_retrial_1h,
+count(distinct iff(nv_trial_or_retrial_within_1h = 1, deduped_message_id_consumer, null)) as nv_trial_or_retrial_1h,
+count(distinct iff(bounce_within_1h = 1, deduped_message_id_consumer, null)) as bounce_1h,
+count(distinct iff(unsubscribe_within_1h = 1, deduped_message_id_consumer, null)) as unsubscribe_1h,
+count(distinct iff(uninstall_within_1h = 1, deduped_message_id_consumer, null)) as uninstall_1h,
+count(distinct iff(engagement_to_nv_order_within_1h = 1, deduped_message_id_consumer, null)) as engagement_to_nv_order_1h,
 
 -- 1h Customer Count Metrics
 count(distinct iff(engagement_within_1h = 1, consumer_id, null)) as cx_engagement_1h,
@@ -272,18 +281,18 @@ cx_nv_trial_or_retrial_1h / nullif(cx_notifs_sent, 0) as cx_send_to_nv_trial_or_
 cx_unsubscribe_1h / nullif(cx_notifs_sent, 0) as cx_send_to_unsubscribe_rate_1h,
 
 -- 4h Metrics
-count(distinct iff(engagement_within_4h = 1, deduped_message_id, null)) as engagement_4h,
-count(distinct iff(receive_within_4h = 1, deduped_message_id, null)) as receive_4h,
-count(distinct iff(visit_within_4h = 1, deduped_message_id, null)) as visit_4h,
-count(distinct iff(order_within_4h = 1, deduped_message_id, null)) as order_4h,
-count(distinct iff(nv_order_within_4h = 1, deduped_message_id, null)) as nv_order_4h,
-count(distinct iff(nv_trial_within_4h = 1, deduped_message_id, null)) as nv_trial_4h,
-count(distinct iff(nv_retrial_within_4h = 1, deduped_message_id, null)) as nv_retrial_4h,
-count(distinct iff(nv_trial_or_retrial_within_4h = 1, deduped_message_id, null)) as nv_trial_or_retrial_4h,
-count(distinct iff(bounce_within_4h = 1, deduped_message_id, null)) as bounce_4h,
-count(distinct iff(unsubscribe_within_4h = 1, deduped_message_id, null)) as unsubscribe_4h,
-count(distinct iff(uninstall_within_4h = 1, deduped_message_id, null)) as uninstall_4h,
-count(distinct iff(engagement_to_nv_order_within_4h = 1, deduped_message_id, null)) as engagement_to_nv_order_4h,
+count(distinct iff(engagement_within_4h = 1, deduped_message_id_consumer, null)) as engagement_4h,
+count(distinct iff(receive_within_4h = 1, deduped_message_id_consumer, null)) as receive_4h,
+count(distinct iff(visit_within_4h = 1, deduped_message_id_consumer, null)) as visit_4h,
+count(distinct iff(order_within_4h = 1, deduped_message_id_consumer, null)) as order_4h,
+count(distinct iff(nv_order_within_4h = 1, deduped_message_id_consumer, null)) as nv_order_4h,
+count(distinct iff(nv_trial_within_4h = 1, deduped_message_id_consumer, null)) as nv_trial_4h,
+count(distinct iff(nv_retrial_within_4h = 1, deduped_message_id_consumer, null)) as nv_retrial_4h,
+count(distinct iff(nv_trial_or_retrial_within_4h = 1, deduped_message_id_consumer, null)) as nv_trial_or_retrial_4h,
+count(distinct iff(bounce_within_4h = 1, deduped_message_id_consumer, null)) as bounce_4h,
+count(distinct iff(unsubscribe_within_4h = 1, deduped_message_id_consumer, null)) as unsubscribe_4h,
+count(distinct iff(uninstall_within_4h = 1, deduped_message_id_consumer, null)) as uninstall_4h,
+count(distinct iff(engagement_to_nv_order_within_4h = 1, deduped_message_id_consumer, null)) as engagement_to_nv_order_4h,
 
 -- 4h Customer Count Metrics (adding parity with original table)
 count(distinct iff(engagement_within_4h = 1, consumer_id, null)) as cx_engagement_4h,
@@ -331,18 +340,18 @@ cx_nv_trial_or_retrial_4h / nullif(cx_notifs_sent, 0) as cx_send_to_nv_trial_or_
 cx_unsubscribe_4h / nullif(cx_notifs_sent, 0) as cx_send_to_unsubscribe_rate_4h,
 
 -- 24h Metrics
-count(distinct iff(engagement_within_24h = 1, deduped_message_id, null)) as engagement_24h,
-count(distinct iff(receive_within_24h = 1, deduped_message_id, null)) as receive_24h,
-count(distinct iff(visit_within_24h = 1, deduped_message_id, null)) as visit_24h,
-count(distinct iff(order_within_24h = 1, deduped_message_id, null)) as order_24h,
-count(distinct iff(nv_order_within_24h = 1, deduped_message_id, null)) as nv_order_24h,
-count(distinct iff(nv_trial_within_24h = 1, deduped_message_id, null)) as nv_trial_24h,
-count(distinct iff(nv_retrial_within_24h = 1, deduped_message_id, null)) as nv_retrial_24h,
-count(distinct iff(nv_trial_or_retrial_within_24h = 1, deduped_message_id, null)) as nv_trial_or_retrial_24h,
-count(distinct iff(bounce_within_24h = 1, deduped_message_id, null)) as bounce_24h,
-count(distinct iff(unsubscribe_within_24h = 1, deduped_message_id, null)) as unsubscribe_24h,
-count(distinct iff(uninstall_within_24h = 1, deduped_message_id, null)) as uninstall_24h,
-count(distinct iff(engagement_to_nv_order_within_24h = 1, deduped_message_id, null)) as engagement_to_nv_order_24h,
+count(distinct iff(engagement_within_24h = 1, deduped_message_id_consumer, null)) as engagement_24h,
+count(distinct iff(receive_within_24h = 1, deduped_message_id_consumer, null)) as receive_24h,
+count(distinct iff(visit_within_24h = 1, deduped_message_id_consumer, null)) as visit_24h,
+count(distinct iff(order_within_24h = 1, deduped_message_id_consumer, null)) as order_24h,
+count(distinct iff(nv_order_within_24h = 1, deduped_message_id_consumer, null)) as nv_order_24h,
+count(distinct iff(nv_trial_within_24h = 1, deduped_message_id_consumer, null)) as nv_trial_24h,
+count(distinct iff(nv_retrial_within_24h = 1, deduped_message_id_consumer, null)) as nv_retrial_24h,
+count(distinct iff(nv_trial_or_retrial_within_24h = 1, deduped_message_id_consumer, null)) as nv_trial_or_retrial_24h,
+count(distinct iff(bounce_within_24h = 1, deduped_message_id_consumer, null)) as bounce_24h,
+count(distinct iff(unsubscribe_within_24h = 1, deduped_message_id_consumer, null)) as unsubscribe_24h,
+count(distinct iff(uninstall_within_24h = 1, deduped_message_id_consumer, null)) as uninstall_24h,
+count(distinct iff(engagement_to_nv_order_within_24h = 1, deduped_message_id_consumer, null)) as engagement_to_nv_order_24h,
 
 -- 24h Customer Count Metrics (adding parity with original table) 
 count(distinct iff(engagement_within_24h = 1, consumer_id, null)) as cx_engagement_24h,

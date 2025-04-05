@@ -79,3 +79,4 @@ ORDER BY delivery_count DESC;
 
 -- Confirm that data was written
 SELECT * FROM proddb.public.tmp_ts_nv_mvp; 
+
