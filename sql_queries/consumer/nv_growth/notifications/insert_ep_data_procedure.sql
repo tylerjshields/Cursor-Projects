@@ -87,13 +87,18 @@ $$
             processed_query = processed_query.replace(/:END_DATE/g, end_date_str);
             
             // Construct insert statement to execute the dynamic query and insert results
+            // Fix: Ensure the subquery has proper column aliases to avoid "missing column specification" error
             var insert_sql = `
-                INSERT INTO proddb.public.nvg_channels_ep_daily (ds, ep_name, consumer_id)
+                INSERT INTO proddb.public.nvg_channels_ep_daily (ds, ep_name, consumer_id, total_consumers_in_program)
+                WITH program_results AS (
+                    ${processed_query}
+                )
                 SELECT 
                     ${end_date_str}::DATE AS ds,
                     '${program_name}' AS ep_name,
-                    consumer_id
-                FROM (${processed_query})
+                    consumer_id,
+                    (SELECT COUNT(*) FROM program_results) AS total_consumers_in_program
+                FROM program_results
             `;
             
             try {
