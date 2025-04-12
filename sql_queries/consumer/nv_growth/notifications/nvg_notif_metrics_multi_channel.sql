@@ -31,6 +31,7 @@ concat(e.deduped_message_id, '_', e.consumer_id) as deduped_message_id_consumer,
 e.deduped_message_id,
 e.consumer_id,
 COALESCE(e.campaign_name, e.canvas_name) as campaign_name,
+coalesce(e.campaign_id, e.canvas_id) as campaign_canvas_id,
 ep_name,
 clean_campaign_name,
 n.team,
@@ -155,6 +156,7 @@ b.deduped_message_id_consumer,
 b.deduped_message_id,
 b.consumer_id,
 b.campaign_name,
+b.campaign_canvas_id,
 b.clean_campaign_name,
 b.team,
 b.ep_name,
@@ -185,12 +187,13 @@ b.order_within_24h,
 b.bounce_within_24h,
 b.unsubscribe_within_24h,
 b.uninstall_within_24h,
+
 coalesce(n.nv_order_within_1h, 0) as nv_order_within_1h,
 coalesce(n.nv_order_within_4h, 0) as nv_order_within_4h,
 coalesce(n.nv_order_within_24h, 0) as nv_order_within_24h,
-coalesce(n.engagement_to_nv_order_within_1h, 0) engagement_to_nv_order_within_1h,
-coalesce(n.engagement_to_nv_order_within_4h, 0) engagement_to_nv_order_within_4h,
-coalesce(n.engagement_to_nv_order_within_24h, 0) engagement_to_nv_order_within_24h,
+coalesce(n.engagement_to_nv_order_within_1h, 0) as engagement_to_nv_order_within_1h,
+coalesce(n.engagement_to_nv_order_within_4h, 0) as engagement_to_nv_order_within_4h,
+coalesce(n.engagement_to_nv_order_within_24h, 0) as engagement_to_nv_order_within_24h,
 coalesce(n.nv_trial_within_1h, 0) as nv_trial_within_1h,
 coalesce(n.nv_trial_within_4h, 0) as nv_trial_within_4h,
 coalesce(n.nv_trial_within_24h, 0) as nv_trial_within_24h,
@@ -210,6 +213,16 @@ JOIN proddb.public.nvg_notif_nv_metrics_multi_channel n
   AND b.team = n.team;
 
 create or replace table proddb.public.nvg_notif_metrics_multi_channel as 
+with targeting_daily as (
+  select 
+    r.program_name,
+    r.run_at::date as run_date,
+    r.run_count
+  from growth_service_prod.public.engagement_program_run_results r
+  where r.program_name in (select distinct ep_name from proddb.public.nv_channels_notif_index)
+  qualify row_number() over (partition by program_name, run_at::DATE order by run_at desc) = 1
+)
+
 select 
 campaign_name,
 clean_campaign_name,
@@ -220,6 +233,11 @@ date_trunc('week', sent_at_date) sent_week,
 count(distinct deduped_message_id_consumer) notifs_sent,
 count(distinct consumer_id) cx_notifs_sent,
 notifs_sent / nullif(cx_notifs_sent, 0) notifs_sent_per_cx,
+-- CHANGE #3: Added targeting metrics to the final output
+avg(run_count) as approx_targeted_cx,
+notifs_sent / nullif(avg(t.run_count), 0) as targeted_to_sent_rate,
+cx_notifs_sent / nullif(avg(t.run_count), 0) as cx_targeted_to_sent_rate,
+
 
 -- 1h Metrics with engagement as the primary metric
 count(distinct iff(engagement_within_1h = 1, deduped_message_id_consumer, null)) as engagement_1h,
@@ -261,6 +279,8 @@ nv_trial_1h / nullif(visit_1h, 0) as visit_to_nv_trial_rate_1h,
 nv_retrial_1h / nullif(visit_1h, 0) as visit_to_nv_retrial_rate_1h,
 nv_trial_or_retrial_1h / nullif(visit_1h, 0) as visit_to_nv_trial_or_retrial_rate_1h,
 nv_trial_or_retrial_1h / nullif(notifs_sent, 0) as send_to_nv_trial_or_retrial_rate_1h,
+nv_trial_1h / nullif(notifs_sent, 0) as send_to_nv_trial_rate_1h,
+nv_retrial_1h / nullif(notifs_sent, 0) as send_to_nv_retrial_rate_1h,
 unsubscribe_1h / nullif(notifs_sent, 0) as send_to_unsubscribe_rate_1h,
 nv_order_1h / nullif(order_1h, 0) as pct_nv_orders_1h,
 engagement_to_nv_order_1h / nullif(nv_order_1h, 0) as pct_nv_orders_from_engagement_1h,
@@ -320,6 +340,9 @@ nv_trial_4h / nullif(visit_4h, 0) as visit_to_nv_trial_rate_4h,
 nv_retrial_4h / nullif(visit_4h, 0) as visit_to_nv_retrial_rate_4h,
 nv_trial_or_retrial_4h / nullif(visit_4h, 0) as visit_to_nv_trial_or_retrial_rate_4h,
 nv_trial_or_retrial_4h / nullif(notifs_sent, 0) as send_to_nv_trial_or_retrial_rate_4h,
+-- Add new individual trial and retrial send_to rates
+nv_trial_4h / nullif(notifs_sent, 0) as send_to_nv_trial_rate_4h,
+nv_retrial_4h / nullif(notifs_sent, 0) as send_to_nv_retrial_rate_4h,
 unsubscribe_4h / nullif(notifs_sent, 0) as send_to_unsubscribe_rate_4h,
 nv_order_4h / nullif(order_4h, 0) as pct_nv_orders_4h,
 engagement_to_nv_order_4h / nullif(nv_order_4h, 0) as pct_nv_orders_from_engagement_4h,
@@ -379,6 +402,9 @@ nv_trial_24h / nullif(visit_24h, 0) as visit_to_nv_trial_rate_24h,
 nv_retrial_24h / nullif(visit_24h, 0) as visit_to_nv_retrial_rate_24h,
 nv_trial_or_retrial_24h / nullif(visit_24h, 0) as visit_to_nv_trial_or_retrial_rate_24h,
 nv_trial_or_retrial_24h / nullif(notifs_sent, 0) as send_to_nv_trial_or_retrial_rate_24h,
+-- Add new individual trial and retrial send_to rates
+nv_trial_24h / nullif(notifs_sent, 0) as send_to_nv_trial_rate_24h,
+nv_retrial_24h / nullif(notifs_sent, 0) as send_to_nv_retrial_rate_24h,
 unsubscribe_24h / nullif(notifs_sent, 0) as send_to_unsubscribe_rate_24h,
 nv_order_24h / nullif(order_24h, 0) as pct_nv_orders_24h,
 engagement_to_nv_order_24h / nullif(nv_order_24h, 0) as pct_nv_orders_from_engagement_24h,
@@ -396,15 +422,13 @@ cx_nv_trial_24h / nullif(cx_visit_24h, 0) as cx_visit_to_nv_trial_rate_24h,
 cx_nv_retrial_24h / nullif(cx_visit_24h, 0) as cx_visit_to_nv_retrial_rate_24h,
 cx_nv_trial_or_retrial_24h / nullif(cx_visit_24h, 0) as cx_visit_to_nv_trial_or_retrial_rate_24h,
 cx_nv_trial_or_retrial_24h / nullif(cx_notifs_sent, 0) as cx_send_to_nv_trial_or_retrial_rate_24h,
-cx_unsubscribe_24h / nullif(cx_notifs_sent, 0) as cx_send_to_unsubscribe_rate_24h,
+cx_unsubscribe_24h / nullif(cx_notifs_sent, 0) as cx_send_to_unsubscribe_rate_24h
 
--- Additional tracking analytics for marketing needs
-SUM(total_nv_gov_within_1h) as total_nv_gov_1h,
-SUM(total_nv_gov_within_4h) as total_nv_gov_4h,
-SUM(total_nv_gov_within_24h) as total_nv_gov_24h,
-total_nv_gov_1h / nullif(notifs_sent, 0) as gov_per_notif_1h,
-total_nv_gov_4h / nullif(notifs_sent, 0) as gov_per_notif_4h,
-total_nv_gov_24h / nullif(notifs_sent, 0) as gov_per_notif_24h
+
+-- CHANGE #4: Added left join to targeting_daily table
 from proddb.public.nvg_notif_metrics_base_multi_channel b
+left join targeting_daily t
+  on b.ep_name = t.program_name
+  and date_trunc('day', b.sent_at_date) = t.run_date
 where campaign_name is not null
 group by all; 

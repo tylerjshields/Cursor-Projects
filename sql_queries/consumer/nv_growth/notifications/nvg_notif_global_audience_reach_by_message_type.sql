@@ -12,7 +12,8 @@ create or replace temporary table ts_growth_states as
         on d.consumer_id = n.consumer_id 
         and d.ds = n.event_ts::DATE
     where d.experience = 'doordash'
-        and d.ds = $window_start;
+        and d.ds = $window_start
+        and vertical = 'core_dd_utc';
 
 create or replace temporary table ts_notification_reach_by_message_type as 
     select consumer_id, date, channel, message_type, max(reached_28d) as reached_28d 
@@ -37,33 +38,75 @@ create or replace temporary table ts_notification_reach_all as
     group by all;
 
 create or replace temporary table ts_notification_coverage_all as
+    -- 1. Individual combinations (team + message_type)
     select 
-        consumer_id,
-        notification_message_type as message_type,
-        campaign_name,
-        campaign_name_clean,
+        b.consumer_id,
+        idx.Notification_Message_type as message_type,    
+        b.campaign_name,
+        b.clean_campaign_name as campaign_name_clean,
+        b.team,
         count(*) as num_notifs_sent,
-        array_agg(distinct campaign_name) as campaigns_received
-    from proddb.public.nvg_notif_metrics_base
-    where sent_at_date between $window_start and dateadd('d', 28, $window_start)
+        array_agg(distinct b.campaign_name) as campaigns_received
+    from proddb.public.nvg_notif_metrics_base_multi_channel b
+    left join proddb.public.nv_channels_notif_index idx
+        on b.campaign_canvas_id = coalesce(idx.campaign_id, idx.canvas_id)
+    where b.sent_at_date between $window_start and dateadd('d', 28, $window_start)
+    and b.notification_channel = 'PUSH'  -- Filter to only PUSH notifications
     group by all
 
     union all
 
+    -- 2. Team rollups (team + "Overall" message_type)
     select 
-        consumer_id,
+        b.consumer_id,
         'Overall' as message_type,
         'All Campaigns' as campaign_name,
         'All Campaigns' as campaign_name_clean,
+        b.team,
         count(*) as num_notifs_sent,
-        array_agg(distinct campaign_name) as campaigns_received
-    from proddb.public.nvg_notif_metrics_base
-    where sent_at_date between $window_start and dateadd('d', 28, $window_start)
-    group by consumer_id;
+        array_agg(distinct b.campaign_name) as campaigns_received
+    from proddb.public.nvg_notif_metrics_base_multi_channel b
+    where b.sent_at_date between $window_start and dateadd('d', 28, $window_start)
+    and b.notification_channel = 'PUSH'  -- Filter to only PUSH notifications
+    group by b.consumer_id, b.team
+
+    union all
+
+    -- 3. Message type rollups ("All Teams" team + message_type)
+    select 
+        b.consumer_id,
+        idx.Notification_Message_type as message_type,
+        'All Campaigns' as campaign_name,
+        'All Campaigns' as campaign_name_clean,
+        'All Teams' as team,
+        count(*) as num_notifs_sent,
+        array_agg(distinct b.campaign_name) as campaigns_received
+    from proddb.public.nvg_notif_metrics_base_multi_channel b
+    left join proddb.public.nv_channels_notif_index idx
+        on b.campaign_canvas_id = coalesce(idx.campaign_id, idx.canvas_id)
+    where b.sent_at_date between $window_start and dateadd('d', 28, $window_start)
+    and b.notification_channel = 'PUSH'  -- Filter to only PUSH notifications
+    group by b.consumer_id, idx.Notification_Message_type
+
+    union all
+
+    -- 4. Complete overall ("All Teams" team + "Overall" message_type)
+    select 
+        b.consumer_id,
+        'Overall' as message_type,
+        'All Campaigns' as campaign_name,
+        'All Campaigns' as campaign_name_clean,
+        'All Teams' as team,
+        count(*) as num_notifs_sent,
+        array_agg(distinct b.campaign_name) as campaigns_received
+    from proddb.public.nvg_notif_metrics_base_multi_channel b
+    where b.sent_at_date between $window_start and dateadd('d', 28, $window_start)
+    and b.notification_channel = 'PUSH'  -- Filter to only PUSH notifications
+    group by b.consumer_id;
 
 -- Aggregated view by growth state
 create or replace table proddb.public.nvg_notif_reach_dashboard as
-with growth_state_totals as
+with growth_state_totals as (
     select 
         dd_cx_growth_state,
         nv_cx_growth_state,
@@ -72,8 +115,8 @@ with growth_state_totals as
     where dd_cx_growth_state is not null 
     and dd_cx_growth_state != 'other' 
     and dd_cx_growth_state != 'Non-Purchaser'
-    group by all,
-reachable_by_message_type as
+    group by all),
+reachable_by_message_type as (
     select 
         g.dd_cx_growth_state,
         g.nv_cx_growth_state,
@@ -87,12 +130,14 @@ reachable_by_message_type as
     and g.dd_cx_growth_state != 'other' 
     and g.dd_cx_growth_state != 'Non-Purchaser'
     group by all
+)
 select 
     g.dd_cx_growth_state,
     g.nv_cx_growth_state,
     n.message_type,
     n.campaign_name,
     n.campaign_name_clean,
+    n.team,  -- Including team dimension for filtering
     t.total_customers_in_state as total_customers,
     r.reachable_customers,
     count(distinct iff(n.num_notifs_sent > 0, g.consumer_id, null)) as customers_with_notifs,
@@ -113,4 +158,4 @@ where g.dd_cx_growth_state is not null
 and g.dd_cx_growth_state != 'other' 
 and g.dd_cx_growth_state != 'Non-Purchaser'
 group by all
-order by 1, 2, 3, 4, 5;
+order by 1, 2, 3, 4, 5, 6;

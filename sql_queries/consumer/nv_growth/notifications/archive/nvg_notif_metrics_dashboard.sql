@@ -137,10 +137,26 @@ with metrics as (
     from proddb.public.nvg_notif_metrics
 ),
 targeting as (
- select *
+ select 
+   r.program_name,
+   r.run_at,
+   -- Multiply run_count by 7 when has_day_of_week_modulo is 'Yes'
+   case 
+     when regexp_like(e.query, '%\\s*7') then r.run_count * 7
+     when regexp_like(e.query, '%7') then r.run_count * 7
+     else r.run_count
+   end as run_count,
+   e.query as original_query,
+   case 
+     when regexp_like(e.query, '%\\s*7') then 'Yes' 
+     when regexp_like(e.query, '%7') then 'Yes'
+     else 'No' 
+   end as has_day_of_week_modulo
  from growth_service_prod.public.engagement_program_run_results r
+ join growth_service_prod.public.engagement_program e
+   on r.program_name = e.name
  where r.program_name in (select distinct ep_name from proddb.public.nv_channels_notif_index)
- qualify row_number() over (partition by program_name, date_trunc('week', run_at::DATE) order by run_at asc) = 1
+ qualify row_number() over (partition by r.program_name, date_trunc('week', r.run_at::DATE) order by r.run_at asc) = 1
 )
 
 -- Critical fix: Preserve original campaign_name during joining with targeting info
@@ -183,9 +199,10 @@ m.visit_to_nv_trial_or_retrial_rate,
 m.pct_nv_orders,
 m.pct_nv_orders_from_open,
 
-run_count as approx_targeted_cx, 
-notifs_sent / approx_targeted_cx as targeted_to_sent_rate,
-cx_notifs_sent / approx_targeted_cx as cx_targeted_to_sent_rate,
+r.run_count as approx_targeted_cx,
+notifs_sent / nullif(r.run_count, 0) as targeted_to_sent_rate,
+cx_notifs_sent / nullif(r.run_count, 0) as cx_targeted_to_sent_rate,
+r.has_day_of_week_modulo,
 iff(sent_week=date_trunc('week', current_date-7), 1, 0) is_most_recent_week
 from metrics m
 left join targeting r

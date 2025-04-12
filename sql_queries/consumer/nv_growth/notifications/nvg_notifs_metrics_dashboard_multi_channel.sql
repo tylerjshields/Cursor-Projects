@@ -16,6 +16,9 @@ WITH metrics AS (
         notifs_sent,
         cx_notifs_sent,
         notifs_sent_per_cx,
+        approx_targeted_cx,
+        targeted_to_sent_rate,
+        cx_targeted_to_sent_rate,
 
         -- 1h Metrics
         engagement_1h as open,
@@ -47,7 +50,10 @@ WITH metrics AS (
         send_to_nv_trial_or_retrial_rate_1h as send_to_nv_trial_or_retrial_rate,
         send_to_unsubscribe_rate_1h as send_to_unsubscribe_rate,
         pct_nv_orders_1h as pct_nv_orders,
-        pct_nv_orders_from_engagement_1h as pct_nv_orders_from_open
+        pct_nv_orders_from_engagement_1h as pct_nv_orders_from_open,
+        -- Pull individual trial and retrial rates directly from source
+        send_to_nv_trial_rate_1h as send_to_nv_trial_rate,
+        send_to_nv_retrial_rate_1h as send_to_nv_retrial_rate
         
     from proddb.public.nvg_notif_metrics_multi_channel
     
@@ -64,6 +70,9 @@ WITH metrics AS (
         notifs_sent,
         cx_notifs_sent,
         notifs_sent_per_cx,
+        approx_targeted_cx,
+        targeted_to_sent_rate,
+        cx_targeted_to_sent_rate,
         
         -- 4h Metrics
         engagement_4h as open,
@@ -95,7 +104,10 @@ WITH metrics AS (
         send_to_nv_trial_or_retrial_rate_4h as send_to_nv_trial_or_retrial_rate,
         send_to_unsubscribe_rate_4h as send_to_unsubscribe_rate,
         pct_nv_orders_4h as pct_nv_orders,
-        pct_nv_orders_from_engagement_4h as pct_nv_orders_from_open
+        pct_nv_orders_from_engagement_4h as pct_nv_orders_from_open,
+        -- Pull individual trial and retrial rates directly from source
+        send_to_nv_trial_rate_4h as send_to_nv_trial_rate,
+        send_to_nv_retrial_rate_4h as send_to_nv_retrial_rate
         
     from proddb.public.nvg_notif_metrics_multi_channel
 
@@ -112,6 +124,9 @@ WITH metrics AS (
         notifs_sent,
         cx_notifs_sent,
         notifs_sent_per_cx,
+        approx_targeted_cx,
+        targeted_to_sent_rate,
+        cx_targeted_to_sent_rate,
         
         -- 24h Metrics
         engagement_24h as open,
@@ -143,20 +158,17 @@ WITH metrics AS (
         send_to_nv_trial_or_retrial_rate_24h as send_to_nv_trial_or_retrial_rate,
         send_to_unsubscribe_rate_24h as send_to_unsubscribe_rate,
         pct_nv_orders_24h as pct_nv_orders,
-        pct_nv_orders_from_engagement_24h as pct_nv_orders_from_open
+        pct_nv_orders_from_engagement_24h as pct_nv_orders_from_open,
+        -- Pull individual trial and retrial rates directly from source
+        send_to_nv_trial_rate_24h as send_to_nv_trial_rate,
+        send_to_nv_retrial_rate_24h as send_to_nv_retrial_rate
         
     from proddb.public.nvg_notif_metrics_multi_channel
-),
-targeting as (
- select *
- from growth_service_prod.public.engagement_program_run_results r
- where r.program_name in (select distinct ep_name from proddb.public.nv_channels_notif_index)
- qualify row_number() over (partition by program_name, date_trunc('week', run_at::DATE) order by run_at asc) = 1
 )
 
--- Critical fix: Preserve original campaign_name during joining with targeting info
+-- Final output with is_most_recent_week flag
 select 
-    m.campaign_name,    -- Keep original campaign_name, don't replace with ep_name
+    m.campaign_name,
     m.clean_campaign_name,
     m.team,
     m.ep_name,
@@ -197,12 +209,13 @@ select
     m.pct_nv_orders,
     m.pct_nv_orders_from_open,
     
-    run_count as approx_targeted_cx, 
-    m.notifs_sent / nullif(run_count, 0) as targeted_to_sent_rate,
-    m.cx_notifs_sent / nullif(run_count, 0) as cx_targeted_to_sent_rate,
+    -- New individual trial and retrial rate metrics
+    m.send_to_nv_trial_rate,
+    m.send_to_nv_retrial_rate,
+    
+    m.approx_targeted_cx, 
+    m.targeted_to_sent_rate,
+    m.cx_targeted_to_sent_rate,
     iff(m.sent_week = date_trunc('week', current_date-7), 1, 0) is_most_recent_week
 from metrics m
-left join targeting r
-    on m.ep_name = r.program_name 
-    and date_trunc('week', r.run_at::date) = m.sent_week
 order by m.sent_week DESC, m.campaign_name, m.team, m.notification_channel, m.time_window; 

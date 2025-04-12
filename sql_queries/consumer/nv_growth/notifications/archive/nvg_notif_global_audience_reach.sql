@@ -64,3 +64,6 @@ and g.dd_cx_growth_state != 'other'
 and g.dd_cx_growth_state != 'Non-Purchaser'
 group by all
 order by 1, 2;
+
+
+-- use warehouse team_data_analytics_etl;
