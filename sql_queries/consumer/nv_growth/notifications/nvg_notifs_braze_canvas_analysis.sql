@@ -155,6 +155,9 @@ limit 10;
 */
 
 -- Step 4: Calculate capping metrics for each program by day
+-- create or replace temporary table program_metrics as
+
+create or replace table proddb.tylershields.nvg_notif_braze_capping_daily as 
 with program_successful_sends as (
     -- Get total notifications successfully sent per program per day
     -- (these are only the ones that were actually delivered, not capped)
@@ -192,40 +195,8 @@ attribution_summary as (
               then id end) as unattributed
     from program_capped_attribution
     group by 1, 2, 3, 4, 5, 6, 7
-)
+);
 
--- Final output with program level stats by day, matched to notifs_index
-create or replace table proddb.tylershields.nvg_notif_braze_capping_daily as 
-select
-    a.program_id,
-    a.team,
-    a.ep_name,
-    a.clean_campaign_name,
-    a.program_name,
-    a.program_type,
-    a.capped_day as day_date,
-    coalesce(p.successful_sends, 0) as successful_sends,
-    a.total_capped,
-    (coalesce(p.successful_sends, 0) + a.total_capped) as attempted_sends,
-    a.fpn_attributed,
-    a.braze_attributed,
-    a.multi_attributed,
-    a.unattributed,
-    
-    -- Capping rates based on total attempted sends 
-    a.total_capped / nullif(attempted_sends, 0) as total_capped_rate,
-    a.fpn_attributed / nullif(attempted_sends, 0) as fpn_capped_rate,
-    a.braze_attributed / nullif(attempted_sends, 0) as braze_capped_rate,
-    a.multi_attributed / nullif(attempted_sends, 0) as multi_attributed_rate,
-    a.unattributed / nullif(attempted_sends, 0) as unattributed_rate,
-    
-    -- Attribution percentages (among capped)
-    a.fpn_attributed / nullif(a.total_capped, 0) as fpn_attribution_pct,
-    a.braze_attributed / nullif(a.total_capped, 0) as braze_attribution_pct,
-    a.multi_attributed / nullif(a.total_capped, 0) as multi_attribution_pct,
-    a.unattributed / nullif(a.total_capped, 0) as unattributed_pct
-from attribution_summary a
-left join program_successful_sends p 
-    on a.program_id = p.program_id
-    and a.capped_day = p.day_date
-order by a.team, a.ep_name, a.capped_day; 
+-- Final output table
+-- create or replace table proddb.tylershields.nvg_notif_braze_capping_daily as 
+-- select * from program_metrics; 

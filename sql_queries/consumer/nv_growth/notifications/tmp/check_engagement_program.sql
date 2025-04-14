@@ -32,3 +32,5 @@ JOIN proddb.public.nv_channels_notif_index n
 WHERE e.query IS NOT NULL
 ORDER BY query_length DESC
 LIMIT 1; 
+
+
