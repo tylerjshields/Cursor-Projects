@@ -6,7 +6,7 @@ set window_start = current_date-30; ----'2025-01-01'; --dateadd('d', -30, curren
 set window_end = current_date-1;
 
 -- Create temporary NV orders table for order attribution
-create or replace temporary table ts_nv_orders as 
+create or replace table proddb.tylershields.stg_nv_notif_orders as
 select 
     d.delivery_id,
     d.created_at, 
@@ -26,8 +26,8 @@ where ddr.is_nv = 'NV'
 and d.is_filtered_core
 and d.active_date_utc between $window_start and $window_end;
 
--- Create clean notification-level dataset at deduped_message_id_consumer grain
-create or replace table proddb.tylershields.nvg_notif_base_data as
+-- Create intermediate notification-level dataset without dimension_nv_notif_users data
+create or replace table proddb.tylershields.stg_fact_nv_notifs as
 select 
     -- Dimensions
     concat(e.deduped_message_id, '_', e.consumer_id) as deduped_message_id_consumer,
@@ -46,8 +46,6 @@ select
     min(e.sent_at_date) as sent_at_date,
     date_trunc('week', min(e.sent_at_date))::date as sent_week,
     date_trunc('month', min(e.sent_at_date))::date as sent_month,
-    g.days_since_order,
-    g.days_since_order_bucket,
     CASE 
         WHEN TO_CHAR(CONVERT_TIMEZONE('UTC', 'America/Chicago', MIN(e.sent_at)), 'HH24:MI:SS') BETWEEN '06:00:00' AND '09:59:59' THEN 'a. Morning 6am to 10am'
         WHEN TO_CHAR(CONVERT_TIMEZONE('UTC', 'America/Chicago', MIN(e.sent_at)), 'HH24:MI:SS') BETWEEN '10:00:00' AND '13:59:59' THEN 'b. Late Morning 10am to 2pm'
@@ -55,18 +53,6 @@ select
         WHEN TO_CHAR(CONVERT_TIMEZONE('UTC', 'America/Chicago', MIN(e.sent_at)), 'HH24:MI:SS') BETWEEN '18:00:00' AND '21:59:59' THEN 'd. Evening 6pm to 10pm'
         ELSE 'e. Night 10pm to 6am'
     END AS daypart,
-    g.nv_cx_growth_state,
-    g.dd_nv_cx_growth_state, 
-    g.dd_cx_growth_state,
-    g.is_push_reachable,
-    g.is_email_reachable,
-    g.is_any_channel_reachable,
-    g.is_push_reachable_recommendations,
-    g.is_push_reachable_reminders,
-    g.is_push_reachable_doordash_offers,
-    g.is_push_reachable_store_offers,
-    g.is_push_reachable_special_offers,
-    g.is_push_reachable_other,
     
     -- Metrics - 1h window
     max(e.is_valid_send)::int as is_valid_send,
@@ -127,15 +113,33 @@ select
 from edw.consumer.fact_consumer_notification_engagement e
 left join proddb.public.nv_channels_notif_index idx
     on coalesce(e.campaign_id, e.canvas_id) = coalesce(idx.campaign_id, idx.canvas_id)
-left join proddb.tylershields.dimension_nv_notif_users g
-    on e.consumer_id = g.consumer_id and e.sent_at_date = g.ds
-left join ts_nv_orders o
+left join proddb.tylershields.stg_nv_notif_orders o
     on e.consumer_id = o.consumer_id and o.created_at between e.sent_at and dateadd('h', 24, e.sent_at)
-where e.sent_at_date between $window_start and $window_end
+where e.sent_at_date between $window_start and $window_end::DATE-1
 and e.notification_channel in ('PUSH', 'EMAIL')
 and (e.notification_message_type is null or e.notification_message_type != 'Transactional')
 and e.is_valid_send = 1
 group by all;
+
+-- Create final notification-level dataset by joining with dimension_nv_notif_users
+create or replace table proddb.public.fact_nv_notifs as
+select 
+    s.*,
+    g.nv_cx_growth_state,
+    g.dd_cx_growth_state,
+    g.last_nv_order_ds,
+    g.is_push_reachable,
+    g.is_email_reachable,
+    g.is_any_channel_reachable,
+    g.is_push_reachable_recommendations,
+    g.is_push_reachable_reminders,
+    g.is_push_reachable_doordash_offers,
+    g.is_push_reachable_store_offers,
+    g.is_push_reachable_special_offers,
+    g.is_push_reachable_other
+from proddb.tylershields.stg_fact_nv_notifs s
+left join proddb.public.dimension_nv_notif_users g
+    on s.consumer_id = g.consumer_id and s.sent_at_date = g.ds;
 
 -- Create HLL objects from the base data for flexible aggregation
 create or replace table proddb.tylershields.nvg_notif_hll_objects_v2 as
@@ -143,8 +147,8 @@ select
     -- Dimensions
     sent_at_date, sent_week, sent_month, team, ep_name, clean_campaign_name,
     notification_channel, notification_source, notification_message_type_overall,
-    daypart, days_since_order, days_since_order_bucket,
-    nv_cx_growth_state, dd_nv_cx_growth_state, dd_cx_growth_state,
+    daypart, last_nv_order_ds,
+    nv_cx_growth_state, dd_cx_growth_state,
     is_push_reachable, is_email_reachable, is_any_channel_reachable,
     is_push_reachable_recommendations, is_push_reachable_reminders,
     is_push_reachable_doordash_offers, is_push_reachable_store_offers,
@@ -198,7 +202,7 @@ select
     sum(bounce_within_24h) as bounce_count_24h,
     sum(unsubscribe_within_24h) as unsubscribe_count_24h,
     sum(uninstall_within_24h) as uninstall_count_24h
-from proddb.tylershields.nvg_notif_base_data
+from proddb.public.fact_nv_notifs
 group by all;
 
 -- Example aggregation: Weekly notifs per consumer by team and channel (1h metrics)
@@ -224,7 +228,7 @@ order by 1 desc, 2, 3;
 
 -- Example: Analyze metrics by days since last order (using 4h metrics)
 select 
-    days_since_order_bucket, team, notification_channel,
+    date_trunc('week', last_nv_order_ds)::date as last_order_week, team, notification_channel,
     HLL_ESTIMATE(consumer_hll) as distinct_consumers,
     sum(notification_count) as notifications_sent,
     sum(engagement_count_4h) as notifications_engaged_4h,
@@ -238,23 +242,14 @@ select
     sum(nv_trial_or_retrial_count_4h) / nullif(sum(notification_count), 0) as send_to_nv_trial_or_retrial_rate_4h
 from proddb.tylershields.nvg_notif_hll_objects_v2
 group by 1, 2, 3
-order by case when days_since_order_bucket = 'Never ordered' then 0
-              when days_since_order_bucket = '0-7 days' then 1
-              when days_since_order_bucket = '8-14 days' then 2
-              when days_since_order_bucket = '15-30 days' then 3
-              when days_since_order_bucket = '31-60 days' then 4
-              when days_since_order_bucket = '61-90 days' then 5
-              when days_since_order_bucket = '91-180 days' then 6
-              when days_since_order_bucket = '181-365 days' then 7
-              when days_since_order_bucket = 'Over 1 year' then 8
-              else 9 end, team, notification_channel;
+order by 1 desc, 2, 3;
 
 -- Create dashboard output with same dimensions as v1 for compatibility (using 24h metrics)
 -- L28 version - aggregated across all dates in the window
 create or replace table proddb.public.nvg_notif_compare_index_vs_all_dashboard_v2 as
 select 
-    sent_at_date, team, notification_channel, days_since_order_bucket,
-    dd_cx_growth_state, nv_cx_growth_state, dd_nv_cx_growth_state, daypart,
+    sent_at_date, team, notification_channel, date_trunc('week', last_nv_order_ds)::date as last_order_week,
+    dd_cx_growth_state, nv_cx_growth_state, daypart,
     HLL_ESTIMATE(consumer_hll) as consumers_notified,
     sum(notification_count) as notifs_sent,
     sum(engagement_count_24h) as notifs_engaged,
@@ -313,4 +308,5 @@ group by sent_at_date, team, notification_channel
 order by sent_at_date desc, team, notification_channel;
 
 -- Grant permissions
-grant select on proddb.tylershields.nvg_notif_daily_dashboard_v2 to role read_only_users; 
+grant select on proddb.tylershields.nvg_notif_daily_dashboard_v2 to role read_only_users;
+grant select on proddb.public.fact_nv_notifs to role read_only_users; 
